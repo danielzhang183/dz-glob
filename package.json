@@ -49,6 +49,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^0.27.0",
     "@antfu/utils": "^0.5.2",
+    "@types/estree": "^1.0.1",
     "@types/node": "^18.16.3",
     "bumpp": "^8.2.1",
     "eslint": "^8.39.0",
@@ -61,6 +62,7 @@
     "vitest": "^0.23.4"
   },
   "dependencies": {
+    "acorn": "^8.8.2",
     "fast-glob": "^3.2.12",
     "magic-string": "^0.30.0"
   }

@@ -1,9 +1,14 @@
 import './style.css'
-import { list } from '../../test/fixtures'
+import { list1, list2 } from '../../test/fixtures'
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 
-Promise.all(Object.values(list).map(i => i()))
+Promise.all(Object.values(list1).map(i => i()))
   .then((modules) => {
-    app.textContent = JSON.stringify(modules)
+    app.textContent += JSON.stringify(modules)
+  })
+
+Promise.all(Object.values(list2).map(i => i()))
+  .then((modules) => {
+    app.textContent += JSON.stringify(modules)
   })
