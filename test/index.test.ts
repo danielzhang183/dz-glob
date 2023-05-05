@@ -1,13 +1,14 @@
 import { resolve } from 'path'
 import { promises as fs } from 'fs'
 import { describe, expect, it } from 'vitest'
+import { parse } from 'acorn'
 import { transform } from '../src/transform'
 
 describe('should', async () => {
   const id = resolve(__dirname, './fixtures/index.ts')
   const code = await fs.readFile(id, 'utf-8')
   it('transform', async () => {
-    expect((await transform(code, id))?.code)
+    expect((await transform(code, id, parse))?.code)
       .toMatchInlineSnapshot(`
         "import * as __glob_next__3_0 from './modules/a.ts'
         import * as __glob_next__3_1 from './modules/b.ts'
