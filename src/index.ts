@@ -1,11 +1,84 @@
-import type { Plugin } from 'vite'
+import type { ModuleNode, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
+import mm from 'micromatch'
 import { transform } from './transform'
+import type { ParsedImportGlob } from './types'
+import { toAbsoluteGlob } from './glob'
+
+export * from './types'
 
 export default function (): Plugin {
+  let server: ViteDevServer | undefined
+  let config: ResolvedConfig
+  const map = new Map<string, string[][]>()
+
+  function updateMap(id: string, info: ParsedImportGlob[]) {
+    const globs = info.map(i => i.globs.map(i => toAbsoluteGlob(i, config?.root || process.cwd(), id)))
+    map.set(id, globs)
+    // add those globs to server watcher
+    server?.watcher.add(globs.flatMap(i => i.filter(i => i[0] !== '!')))
+  }
+
+  function getAffectedModules(file: string) {
+    const modules: ModuleNode[] = []
+    for (const [id, globs] of map) {
+      if (globs.some(glob => mm.isMatch(file, glob)))
+        modules.push(...(server?.moduleGraph.getModulesByFile(id) || []))
+    }
+    return modules
+  }
+
   return {
     name: 'vite-plugin-glob',
+    config() {
+      return {
+        server: {
+          watch: {
+            disableGlobbing: false,
+          },
+        },
+      }
+    },
+    configResolved(_config) {
+      config = _config
+    },
+    buildStart() {
+      map.clear()
+    },
+    configureServer(_server) {
+      server = _server
+
+      // file unlink won't be handled by handleHotUpdate,
+      // so we do the update manually
+      server.watcher.on('unlink', (file: string) => {
+        const modules = getAffectedModules(file)
+        _server.ws.send({
+          type: 'update',
+          updates: modules.map((mod) => {
+            _server.moduleGraph.invalidateModule(mod)
+            return {
+              acceptedPath: mod.id!,
+              path: mod.id!,
+              timestamp: Date.now(),
+              type: 'js-update',
+            }
+          }),
+        })
+      })
+    },
+    handleHotUpdate({ file }) {
+      const modules = getAffectedModules(file)
+      if (modules.length)
+        return modules
+    },
     async transform(code, id) {
-      return await transform(code, id, this.parse)
+      const result = await transform(code, id, this.parse)
+      if (result) {
+        updateMap(id, result.matches)
+        return {
+          code: result.s.toString(),
+          map: result.s.generateMap(),
+        }
+      }
     },
   }
 }

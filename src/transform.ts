@@ -3,23 +3,18 @@ import fg from 'fast-glob'
 import MagicString from 'magic-string'
 import type { TransformPluginContext } from 'rollup'
 import type { ArrayExpression, Literal, ObjectExpression } from 'estree'
+import type { GlobalOptions, ParsedImportGlob } from './types'
 
 const importGlobRE = /\bimport\.meta\.globNext(?:<\w+>)?\(([\s\S]*?)\)/g
 const importPrefix = '__glob_next__'
 
-export async function transform(
+export function parseImportGlob(
   code: string,
-  id: string,
   parse: TransformPluginContext['parse'],
-) {
+): ParsedImportGlob[] {
   const matches = Array.from(code.matchAll(importGlobRE))
-  if (!matches.length)
-    return
 
-  const s = new MagicString(code)
-  let num = 0
-
-  for (const match of matches) {
+  return matches.map((match, index) => {
     const argumentString = `[${match[1]}]`
     // @ts-expect-error ignore for now
     const ast = parse(argumentString, { ecmaVersion: 'latest' }).body[0].expression as Literal | ArrayExpression
@@ -45,6 +40,27 @@ export async function transform(
       }
     }
 
+    return {
+      match,
+      index,
+      globs,
+      options,
+    }
+  })
+}
+
+export async function transform(
+  code: string,
+  id: string,
+  parse: TransformPluginContext['parse'],
+) {
+  const matches = parseImportGlob(code, parse)
+  if (!matches.length)
+    return
+
+  const s = new MagicString(code)
+
+  await Promise.all(matches.map(async ({ match, index, globs, options }) => {
     const files = await fg(globs, {
       dot: true,
       cwd: dirname(id),
@@ -54,21 +70,19 @@ export async function transform(
     const query = options.as ? `?${options.as}` : ''
 
     if (options.eager) {
-      const imports = files.map((file, idx) => `import * as ${importPrefix}${num}_${idx} from '${file}${query}'`).join('\n')
+      const imports = files.map((file, idx) => `import * as ${importPrefix}${index}_${idx} from '${file}${query}'`).join('\n')
       s.prepend(`${imports}\n`)
-      const replacement = `{\n${files.map((file, idx) => `'${file}': ${importPrefix}${num}_${idx}`).join(',\n')}}`
+      const replacement = `{\n${files.map((file, idx) => `'${file}': ${importPrefix}${index}_${idx}`).join(',\n')}}`
       s.overwrite(start, end, replacement)
     }
     else {
       const replacement = `{\n${files.map(i => `'${i}': () => import('${i}${query}')`).join(',\n')}}`
       s.overwrite(start, end, replacement)
     }
-
-    num += 1
-  }
+  }))
 
   return {
-    code: s.toString(),
-    map: s.generateMap(),
+    s,
+    matches,
   }
 }
