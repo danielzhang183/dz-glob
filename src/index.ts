@@ -1,10 +1,6 @@
 import type { Plugin } from 'vite'
 import { transform } from './transform'
 
-export interface Options {
-  eager?: boolean
-}
-
 export default function (_options?: Options = {}): Plugin {
   return {
     name: 'vite-plugin-glob',
