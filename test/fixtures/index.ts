@@ -16,7 +16,15 @@ export const list3 = import.meta.globNext([
 
 export const list4 = import.meta.globNext(
   './modules/*.ts',
-  {
-    eager: true,
-  },
+  { eager: true },
+)
+
+export const list5 = import.meta.globNext<string>(
+  './modules/*.ts',
+  { eager: true, export: 'name' },
+)
+
+export const list6 = import.meta.globNext<string>(
+  './modules/*.ts',
+  { export: 'name' },
 )

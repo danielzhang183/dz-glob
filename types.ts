@@ -1,6 +1,16 @@
 export interface GlobalOptions<Eager extends boolean> {
+  /**
+   * Custom query for the import url
+   */
   as?: string
+  /**
+   * Import as static or dynamic
+   */
   eager?: Eager
+  /**
+   * Import only the specific named export. Set to `default` to import the default export.
+   */
+  export?: string
 }
 
 export interface ParsedImportGlob {

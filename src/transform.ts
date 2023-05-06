@@ -3,7 +3,7 @@ import fg from 'fast-glob'
 import MagicString from 'magic-string'
 import type { TransformPluginContext } from 'rollup'
 import type { ArrayExpression, Literal, ObjectExpression } from 'estree'
-import type { GlobalOptions, ParsedImportGlob } from './types'
+import type { GlobalOptions, ParsedImportGlob } from '../types'
 
 const importGlobRE = /\bimport\.meta\.globNext(?:<\w+>)?\(([\s\S]*?)\)/g
 const importPrefix = '__glob_next__'
@@ -59,6 +59,7 @@ export async function transform(
     return
 
   const s = new MagicString(code)
+  const staticImports: string[] = []
 
   await Promise.all(matches.map(async ({ match, index, globs, options }) => {
     const files = await fg(globs, {
@@ -70,16 +71,34 @@ export async function transform(
     const query = options.as ? `?${options.as}` : ''
 
     if (options.eager) {
-      const imports = files.map((file, idx) => `import * as ${importPrefix}${index}_${idx} from '${file}${query}'`).join('\n')
-      s.prepend(`${imports}\n`)
+      staticImports.push(
+        ...files.map((file, i) => {
+          const name = `${importPrefix}${index}_${i}`
+          const expression = options.export
+            ? `{ ${options.export} as ${name} }`
+            : `* as ${name}`
+
+          return `import ${expression} from '${file}${query}'`
+        }),
+      )
       const replacement = `{\n${files.map((file, idx) => `'${file}': ${importPrefix}${index}_${idx}`).join(',\n')}}`
       s.overwrite(start, end, replacement)
     }
     else {
-      const replacement = `{\n${files.map(i => `'${i}': () => import('${i}${query}')`).join(',\n')}}`
+      const objProps = files.map((i) => {
+        let importStatement = `import('${i}${query}')`
+        if (options.export)
+          importStatement += `.then((m) => m.${options.export})`
+
+        return `'${i}': () => ${importStatement}`
+      })
+      const replacement = `{\n${objProps.join(',\n')}\n}`
       s.overwrite(start, end, replacement)
     }
   }))
+
+  if (staticImports.length)
+    s.prepend(`${staticImports.join('\n')}\n`)
 
   return {
     s,

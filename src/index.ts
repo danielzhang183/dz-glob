@@ -1,10 +1,10 @@
 import type { ModuleNode, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import mm from 'micromatch'
+import type { ParsedImportGlob } from '../types'
 import { transform } from './transform'
-import type { ParsedImportGlob } from './types'
 import { toAbsoluteGlob } from './glob'
 
-export * from './types'
+export * from '../types'
 
 export default function (): Plugin {
   let server: ViteDevServer | undefined
