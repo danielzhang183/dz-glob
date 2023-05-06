@@ -81,7 +81,7 @@ export async function transform(
           return `import ${expression} from '${file}${query}'`
         }),
       )
-      const replacement = `{\n${files.map((file, idx) => `'${file}': ${importPrefix}${index}_${idx}`).join(',\n')}}`
+      const replacement = `{\n${files.map((file, idx) => `'${file}': ${importPrefix}${index}_${idx}`).join(',\n')}\n}`
       s.overwrite(start, end, replacement)
     }
     else {

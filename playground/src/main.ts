@@ -1,23 +1,18 @@
 import './style.css'
-import { list1, list2, list3, list4, list5, list6 } from '../../test/fixtures'
+import * as fixtures from '../../test/fixtures'
 
 const app = document.querySelector<HTMLDivElement>('#app')!
 
-await Promise.all(Object.values(list1).map(i => i()))
-  .then((modules) => {
-    app.innerHTML += `${JSON.stringify(modules)}<br>`
-  })
+const settled = Object.fromEntries(
+  await Promise.all(Object.entries(fixtures)
+    .map(async ([key, value]) => {
+      return [key, Object.fromEntries(
+        await Promise.all(Object.entries(value)
+          .map(async ([k, v]) => [k, await (typeof v === 'function' ? v() : v)]),
+        ),
+      )]
+    }),
+  ),
+)
 
-await Promise.all(Object.values(list2).map(i => i()))
-  .then((modules) => {
-    app.innerHTML += `${JSON.stringify(modules)}<br>`
-  })
-
-app.innerHTML += `${JSON.stringify(list3)}<br>`
-app.innerHTML += `${JSON.stringify(list4)}<br>`
-app.innerHTML += `${JSON.stringify(list5)}<br>`
-
-await Promise.all(Object.values(list6).map(i => i()))
-  .then((modules) => {
-    app.innerHTML += `${JSON.stringify(modules)}<br>`
-  })
+app.innerHTML = `<pre>${JSON.stringify(settled, null, 2)}</pre>`
