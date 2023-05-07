@@ -18,4 +18,14 @@ export interface ParsedImportGlob {
   index: number
   globs: string[]
   options: GlobalOptions<boolean>
+  type: string
+}
+
+export interface PluginOptions {
+  /**
+   * Take over the default import.meta.glob in Vite
+   *
+   * @default false
+   */
+  takeover?: boolean
 }

@@ -8,7 +8,7 @@ describe('should', async () => {
   const id = resolve(__dirname, './fixtures/index.ts')
   const code = await fs.readFile(id, 'utf-8')
   it('transform', async () => {
-    expect((await transform(code, id, parse))?.s.toString())
+    expect((await transform(code, id, parse, { takeover: true }))?.s.toString())
       .toMatchInlineSnapshot(`
         "import * as __glob_next__1_0 from './modules/a.ts'
         import * as __glob_next__1_1 from './modules/b.ts'

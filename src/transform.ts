@@ -2,6 +2,7 @@ import { dirname } from 'path'
 import fg from 'fast-glob'
 import MagicString from 'magic-string'
 import type { TransformPluginContext } from 'rollup'
+import type { PluginOptions } from '../types'
 import { parseImportGlob } from './parse'
 
 const importPrefix = '__glob_next__'
@@ -10,8 +11,24 @@ export async function transform(
   code: string,
   id: string,
   parse: TransformPluginContext['parse'],
+  options?: PluginOptions,
 ) {
-  const matches = parseImportGlob(code, parse)
+  let matches = parseImportGlob(code, parse)
+
+  if (options?.takeover) {
+    matches.forEach((i) => {
+      if (i.type === 'globEager')
+        i.options.eager = true
+      if (i.type === 'globEagerDefault') {
+        i.options.eager = true
+        i.options.export = 'default'
+      }
+    })
+  }
+  else {
+    matches = matches.filter(i => i.type === 'importGlob')
+  }
+
   if (!matches.length)
     return
 

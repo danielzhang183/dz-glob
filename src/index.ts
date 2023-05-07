@@ -1,12 +1,12 @@
 import type { ModuleNode, Plugin, ResolvedConfig, ViteDevServer } from 'vite'
 import mm from 'micromatch'
-import type { ParsedImportGlob } from '../types'
+import type { ParsedImportGlob, PluginOptions } from '../types'
 import { transform } from './transform'
 import { toAbsoluteGlob } from './glob'
 
 export * from '../types'
 
-export default function (): Plugin {
+export default function (options: PluginOptions = {}): Plugin {
   let server: ViteDevServer | undefined
   let config: ResolvedConfig
   const map = new Map<string, string[][]>()
@@ -71,7 +71,7 @@ export default function (): Plugin {
         return modules
     },
     async transform(code, id) {
-      const result = await transform(code, id, this.parse)
+      const result = await transform(code, id, this.parse, options)
       if (result) {
         updateMap(id, result.matches)
         return {

@@ -81,13 +81,13 @@ describe('parse positive', () => {
 describe('parse negative', () => {
   it('variable', () => {
     expect(runError('import.meta.globNext(hi)'))
-      .toMatchInlineSnapshot('[Error: Could only use literals in import.meta.importGlob]')
+      .toMatchInlineSnapshot('[Error: Could only use literals in import.meta.globNext]')
   })
 
   it('template', () => {
     // eslint-disable-next-line no-template-curly-in-string
     expect(runError('import.meta.globNext(`hi ${hey}`)'))
-      .toMatchInlineSnapshot('[Error: Could only use literals in import.meta.importGlob]')
+      .toMatchInlineSnapshot('[Error: Could only use literals in import.meta.globNext]')
   })
 
   it('to be string', () => {
@@ -97,23 +97,23 @@ describe('parse negative', () => {
 
   it('be array variable', () => {
     expect(runError('import.meta.globNext([hey])'))
-      .toMatchInlineSnapshot('[Error: Could only use literals in import.meta.importGlob]')
+      .toMatchInlineSnapshot('[Error: Could only use literals in import.meta.globNext]')
     expect(runError('import.meta.globNext(["1", hey])'))
-      .toMatchInlineSnapshot('[Error: Could only use literals in import.meta.importGlob]')
+      .toMatchInlineSnapshot('[Error: Could only use literals in import.meta.globNext]')
   })
 
   it('options', () => {
     expect(runError('import.meta.globNext("hey", hey)'))
-      .toMatchInlineSnapshot('[Error: Expected the second argument of import.meta.importGlob to be a object literal, but got "Identifier"]')
+      .toMatchInlineSnapshot('[Error: Expected the second argument of import.meta.globNext to be a object literal, but got "Identifier"]')
     expect(runError('import.meta.globNext("hey", [])'))
-      .toMatchInlineSnapshot('[Error: Expected the second argument of import.meta.importGlob to be a object literal, but got "ArrayExpression"]')
+      .toMatchInlineSnapshot('[Error: Expected the second argument of import.meta.globNext to be a object literal, but got "ArrayExpression"]')
   })
 
   it('options props', () => {
     expect(runError('import.meta.globNext("hey", { hey: 1 })'))
       .toMatchInlineSnapshot('[Error: Unknown options hey]')
     expect(runError('import.meta.globNext("hey", { expect: hey })'))
-      .toMatchInlineSnapshot('[Error: Could only use literals in import.meta.importGlob]')
+      .toMatchInlineSnapshot('[Error: Could only use literals in import.meta.globNext]')
     expect(runError('import.meta.globNext("hey", { eager: 123 })'))
       .toMatchInlineSnapshot('[Error: Expect the type of option "eager" to be "boolean", but got "number"]')
   })
