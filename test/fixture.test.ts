@@ -7,57 +7,58 @@ import { transform } from '../src/transform'
 describe('should', async () => {
   const id = resolve(__dirname, './fixtures/index.ts')
   const code = await fs.readFile(id, 'utf-8')
+
   it('transform', async () => {
     expect((await transform(code, id, parse, { takeover: true }))?.s.toString())
       .toMatchInlineSnapshot(`
-        "import * as __glob_next__1_0 from './modules/a.ts'
-        import * as __glob_next__1_1 from './modules/b.ts'
-        import * as __glob_next__1_2 from './modules/index.ts'
-        import { name as __glob_next__3_0 } from './modules/a.ts'
-        import { name as __glob_next__3_1 } from './modules/b.ts'
-        import { name as __glob_next__3_2 } from './modules/index.ts'
-        import { default as __glob_next__5_0 } from './modules/a.ts?raw'
-        import { default as __glob_next__5_1 } from './modules/b.ts?raw'
+        "import * as __glob_next__1_0 from \\"./modules/a.ts\\"
+        import * as __glob_next__1_1 from \\"./modules/b.ts\\"
+        import * as __glob_next__1_2 from \\"./modules/index.ts\\"
+        import { name as __glob_next__3_0 } from \\"./modules/a.ts\\"
+        import { name as __glob_next__3_1 } from \\"./modules/b.ts\\"
+        import { name as __glob_next__3_2 } from \\"./modules/index.ts\\"
+        import { default as __glob_next__5_0 } from \\"./modules/a.ts?raw\\"
+        import { default as __glob_next__5_1 } from \\"./modules/b.ts?raw\\"
         export interface ModuleType {
           name: string
         }
 
         export const basic = {
-        './modules/a.ts': () => import('./modules/a.ts'),
-        './modules/b.ts': () => import('./modules/b.ts'),
-        './modules/index.ts': () => import('./modules/index.ts')
+        \\"./modules/a.ts\\": () => import(\\"./modules/a.ts\\"),
+        \\"./modules/b.ts\\": () => import(\\"./modules/b.ts\\"),
+        \\"./modules/index.ts\\": () => import(\\"./modules/index.ts\\")
         }
 
         export const basicEager = {
-        './modules/a.ts': __glob_next__1_0,
-        './modules/b.ts': __glob_next__1_1,
-        './modules/index.ts': __glob_next__1_2
+        \\"./modules/a.ts\\": __glob_next__1_0,
+        \\"./modules/b.ts\\": __glob_next__1_1,
+        \\"./modules/index.ts\\": __glob_next__1_2
         }
 
         export const ignore = {
-        './modules/a.ts': () => import('./modules/a.ts'),
-        './modules/b.ts': () => import('./modules/b.ts')
+        \\"./modules/a.ts\\": () => import(\\"./modules/a.ts\\"),
+        \\"./modules/b.ts\\": () => import(\\"./modules/b.ts\\")
         }
 
         export const namedEager = {
-        './modules/a.ts': __glob_next__3_0,
-        './modules/b.ts': __glob_next__3_1,
-        './modules/index.ts': __glob_next__3_2
+        \\"./modules/a.ts\\": __glob_next__3_0,
+        \\"./modules/b.ts\\": __glob_next__3_1,
+        \\"./modules/index.ts\\": __glob_next__3_2
         }
 
         export const namedDefault = {
-        './modules/a.ts': () => import('./modules/a.ts').then((m) => m.default),
-        './modules/b.ts': () => import('./modules/b.ts').then((m) => m.default),
-        './modules/index.ts': () => import('./modules/index.ts').then((m) => m.default)
+        \\"./modules/a.ts\\": () => import(\\"./modules/a.ts\\").then((m) => m[\\"default\\"]),
+        \\"./modules/b.ts\\": () => import(\\"./modules/b.ts\\").then((m) => m[\\"default\\"]),
+        \\"./modules/index.ts\\": () => import(\\"./modules/index.ts\\").then((m) => m[\\"default\\"])
         }
 
         export const eagerAs = {
-        './modules/a.ts': __glob_next__5_0,
-        './modules/b.ts': __glob_next__5_1
+        \\"./modules/a.ts\\": __glob_next__5_0,
+        \\"./modules/b.ts\\": __glob_next__5_1
         }
 
         export const excludeSelf = {
-        './sibling.ts': () => import('./sibling.ts')
+        \\"./sibling.ts\\": () => import(\\"./sibling.ts\\")
         }
         "
       `)
