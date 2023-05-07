@@ -55,6 +55,10 @@ describe('should', async () => {
         './modules/a.ts': __glob_next__5_0,
         './modules/b.ts': __glob_next__5_1
         }
+
+        export const excludeSelf = {
+        './sibling.ts': () => import('./sibling.ts')
+        }
         "
       `)
   })

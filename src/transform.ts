@@ -1,4 +1,4 @@
-import { dirname } from 'path'
+import { basename, dirname } from 'path'
 import fg from 'fast-glob'
 import MagicString from 'magic-string'
 import type { TransformPluginContext } from 'rollup'
@@ -36,10 +36,13 @@ export async function transform(
   const staticImports: string[] = []
 
   await Promise.all(matches.map(async ({ match, index, globs, options }) => {
-    const files = await fg(globs, {
+    const filename = basename(id)
+    const files = (await fg(globs, {
       dot: true,
       cwd: dirname(id),
-    })
+    }))
+      .filter(file => file !== filename)
+      .map(i => i.match(/^[.\/]/) ? i : `./${i}`)
     const start = match.index!
     const end = start + match[0].length
     const query = options.as ? `?${options.as}` : ''
