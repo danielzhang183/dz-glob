@@ -16,8 +16,8 @@ describe('should', async () => {
         import { name as __glob_next__3_0 } from './modules/a.ts'
         import { name as __glob_next__3_1 } from './modules/b.ts'
         import { name as __glob_next__3_2 } from './modules/index.ts'
-        import * as __glob_next__5_0 from './modules/a.ts?raw'
-        import * as __glob_next__5_1 from './modules/b.ts?raw'
+        import { default as __glob_next__5_0 } from './modules/a.ts?raw'
+        import { default as __glob_next__5_1 } from './modules/b.ts?raw'
         export interface ModuleType {
           name: string
         }
